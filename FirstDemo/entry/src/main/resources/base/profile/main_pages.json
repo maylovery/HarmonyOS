@@ -1,11 +1,13 @@
 {
   "src": [
     "pages/Index",
-    "pages/BaseCompPage",
-    "pages/FlexComPage",
-    "pages/LoginDemoPage",
-    "pages/UserInfoPage",
-    "pages/TimerPage",
-    "pages/ImageCasePage"
+    "pages/BaseComp/01-BaseCompPage",
+    "pages/BaseComp/02-FlexComPage",
+    "pages/SimpDemo/04-LoginDemoPage",
+    "pages/SimpDemo/06-UserInfoPage",
+    "pages/BaseComp/05-TimerPage",
+    "pages/BaseComp/03-ImageCasePage",
+    "pages/SimpDemo/04-ZhiHuReplyPage",
+    "pages/BaseComp/BaseCompEntry"
   ]
 }
