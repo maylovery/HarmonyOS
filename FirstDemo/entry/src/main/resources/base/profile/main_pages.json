@@ -8,6 +8,8 @@
     "pages/BaseComp/05-TimerPage",
     "pages/BaseComp/03-ImageCasePage",
     "pages/SimpDemo/04-ZhiHuReplyPage",
-    "pages/BaseComp/BaseCompEntry"
+    "pages/BaseComp/BaseCompEntry",
+    "pages/BaseComp/06-ReuseStylePage",
+    "pages/BaseComp/LoadingPage"
   ]
 }
