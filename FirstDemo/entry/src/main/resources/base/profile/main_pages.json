@@ -10,6 +10,8 @@
     "pages/SimpDemo/04-ZhiHuReplyPage",
     "pages/BaseComp/BaseCompEntry",
     "pages/BaseComp/06-ReuseStylePage",
-    "pages/BaseComp/LoadingPage"
+    "pages/BaseComp/LoadingPage",
+    "pages/SimpDemo/GoodListPage",
+    "pages/SimpDemo/ZhiHuReplyPage"
   ]
 }

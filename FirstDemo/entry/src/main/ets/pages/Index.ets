@@ -25,7 +25,14 @@ struct Index {
       ListItem() {
         Text("知乎案例")
           .onClick(() => {
-            router.pushUrl({ url: "pages/SimpDemo/04-ZhiHuReplyPage" })
+            router.pushUrl({ url: "pages/SimpDemo/ZhiHuReplyPage" })
+          })
+      }
+
+      ListItem() {
+        Text("商品列表-图片-文字")
+          .onClick(() => {
+            router.pushUrl({ url: "pages/SimpDemo/GoodListPage" })
           })
       }
     }.padding(20)
