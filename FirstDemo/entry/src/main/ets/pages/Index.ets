@@ -35,6 +35,13 @@ struct Index {
             router.pushUrl({ url: "pages/SimpDemo/GoodListPage" })
           })
       }
+      ListItem() {
+        Text("网络请求NetRequestDemo")
+          .onClick(() => {
+            router.pushUrl({ url: "pages/NetWork/NetRequestDemo" })
+          })
+      }
+
     }.padding(20)
   }
 }

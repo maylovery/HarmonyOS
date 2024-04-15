@@ -12,6 +12,18 @@
     "pages/BaseComp/06-ReuseStylePage",
     "pages/BaseComp/LoadingPage",
     "pages/SimpDemo/GoodListPage",
-    "pages/SimpDemo/ZhiHuReplyPage"
+    "pages/SimpDemo/ZhiHuReplyPage",
+    "pages/BaseComp/BuilderPage",
+    "pages/BaseComp/BuilderParamPage",
+    "pages/StateDemo/StatePage",
+    "pages/StateDemo/StatePage2",
+    "pages/StateDemo/StatePage3",
+    "pages/StateDemo/StatePage4",
+    "pages/Storage/LocalStoragePage",
+    "pages/Storage/LocalStorePage2",
+    "pages/Storage/AppStoragePage",
+    "pages/Storage/AppStoragePage2",
+    "pages/NetWork/NetRequestDemo",
+    "pages/MeiTuan/MeiTuanEntryPage"
   ]
 }
