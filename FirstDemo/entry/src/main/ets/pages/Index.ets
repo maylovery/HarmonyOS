@@ -42,6 +42,13 @@ struct Index {
           })
       }
 
+      ListItem() {
+        Text("美团选择菜品")
+          .onClick(() => {
+            router.pushUrl({ url: "pages/MeiTuan/MeiTuanEntryPage" })
+          })
+      }
+
     }.padding(20)
   }
 }

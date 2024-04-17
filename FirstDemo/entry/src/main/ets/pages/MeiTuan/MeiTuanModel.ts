@@ -8,6 +8,7 @@ export class FoodItem {
   description: string = ""
   tag: string = ""
   month_saled: number = 0
+  count: number = 0
 }
 
 export class Category {

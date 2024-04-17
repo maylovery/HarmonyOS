@@ -1,15 +1,21 @@
 
 import http from '@ohos.net.http'
 import { Log } from '../../common/Log'
-import { Category } from './MeiTuanModel'
+import { Category, FoodItem } from './MeiTuanModel'
+import { getCarts, addCutCart, clearCart } from './cardStore'
+
 @Entry
 @Component
-// 美团点菜菜单
+// 美团点菜菜单 菜单加减 和购物车加减 数据联动。 并持久话到本地
 struct MeiTuanEntryPage {
   @State showCart: boolean = false
   @State categoryList: Category[] = []
+  @Provide cartList: FoodItem[] = []
+  @StorageLink("user_cart") @Watch("updateCartJSON") cartJSON: string = "[]"
+
   aboutToAppear() {
     this.getAllData()
+    this.updateCartJSON()
   }
   async getAllData () {
     try {
@@ -19,21 +25,24 @@ struct MeiTuanEntryPage {
     }catch(err) {
       Log.info("sss", '2')
     }
-
   }
+  updateCartJSON() {
+    this.cartList = getCarts()
+  }
+
   build() {
     Stack({ alignContent: Alignment.Bottom }) {
-      MTMain()
+      MTMain({ categoryList: $categoryList })
       if(this.showCart) {
         MTCart()
       }
-      MTBottom()
-    }
+      MTBottom({showCart: $showCart})
+    }.height('100%')
   }
 }
 // 主内容
 @Component struct MTMain {
-  list: string[] = ['一人套餐', '特色烧烤', '杂粮主食']
+  @Link categoryList: Category[]
   @State activeIndex: number = 0
 
   build() {
@@ -43,8 +52,8 @@ struct MeiTuanEntryPage {
       // 左右布局，左侧是大类，右侧是菜品
       Row() {
         Column() {
-          ForEach(this.list, (item: string, index: number) => {
-            Text(item)
+          ForEach(this.categoryList, (item: Category, index: number) => {
+            Text(item.name)
               .height(50)
               .width('100%')
               .textAlign(TextAlign.Center)
@@ -58,9 +67,9 @@ struct MeiTuanEntryPage {
         .width(90)
         //   右侧内容
         List() {
-          ForEach([1,2,3,4,5,6,7,8,9], () => {
+          ForEach(this.categoryList[this.activeIndex]?.foods || [], (item: FoodItem) => {
             ListItem() {
-              MTFoodItem()
+              MTFoodItem({ item })
             }
           })
         }.layoutWeight(1)
@@ -129,19 +138,21 @@ struct MeiTuanEntryPage {
 }
 // 每种菜品的样式
 @Component struct MTFoodItem {
+  item: Partial<FoodItem> = {}
+
   build() {
     Row() {
-      Image('https://zqran.gitee.io/images/waimai/8078956697.jpg')
+      Image(this.item.picture)
         .width(90)
         .aspectRatio(1)
       Column({ space: 5 }) {
-        Text('小份酸汤莜面鱼鱼+肉夹馍套餐')
+        Text(this.item.name)
           .textOverflow({
             overflow: TextOverflow.Ellipsis,
           })
           .maxLines(2)
           .fontWeight(600)
-        Text('酸汤莜面鱼鱼，主料：酸汤、莜面 肉夹馍，主料：白皮饼、猪肉')
+        Text(this.item.description)
           .textOverflow({
             overflow: TextOverflow.Ellipsis,
           })
@@ -155,9 +166,9 @@ struct MeiTuanEntryPage {
           .padding({ top: 2, bottom: 2, right: 5, left: 5 })
           .borderRadius(2)
         Text() {
-          Span('月销售40')
+          Span(`月销售${this.item.month_saled}`)
           Span(' ')
-          Span('好评度100%')
+          Span(this.item.like_ratio_desc)
         }
         .fontSize(12)
         .fontColor('#999')
@@ -167,13 +178,15 @@ struct MeiTuanEntryPage {
             Span('¥ ')
               .fontColor('#ff8000')
               .fontSize(10)
-            Span('34.23')
+            Span(this.item.price.toFixed(2))
               .fontColor('#ff8000')
               .fontWeight(FontWeight.Bold)
           }
         }
         .justifyContent(FlexAlign.SpaceBetween)
         .width('100%')
+
+        MTAddCut({item: this.item})
       }
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
@@ -186,6 +199,8 @@ struct MeiTuanEntryPage {
 
 // 已加的购物车
 @Component struct MTCart {
+  @Consume cartList: FoodItem[]
+
   build() {
     // 购物车弹出层
     Column() {
@@ -197,6 +212,9 @@ struct MeiTuanEntryPage {
           Text('清空购物车')
             .fontSize(12)
             .fontColor('#999')
+            .onClick(() => {
+              clearCart()
+            })
         }
         .width('100%')
         .height(40)
@@ -206,9 +224,9 @@ struct MeiTuanEntryPage {
         .padding({ left: 15, right: 15 })
 
         List({ space: 30 }) {
-          ForEach([1,2,3,4], () => {
+          ForEach(this.cartList, (item: FoodItem) => {
             ListItem() {
-              MTCartItem()
+              MTCartItem({ item })
             }
           })
         }
@@ -226,14 +244,15 @@ struct MeiTuanEntryPage {
 }
 // 购物车的子项
 @Component struct MTCartItem {
+  item: Partial<FoodItem> = {}
   build() {
     Row() {
-      Image('https://zqran.gitee.io/images/waimai/7384994864.jpg')
+      Image(this.item.picture)
         .width(60)
         .aspectRatio(1)
         .borderRadius(8)
       Column({ space: 5 }) {
-        Text('小份酸汤莜面鱼鱼+肉夹馍套餐')
+        Text(this.item.name)
           .fontSize(14)
           .textOverflow({
             overflow: TextOverflow.Ellipsis
@@ -244,7 +263,7 @@ struct MeiTuanEntryPage {
             Span('¥ ')
               .fontColor('#ff8000')
               .fontSize(10)
-            Span('34.23')
+            Span(this.item.price.toString())
               .fontColor('#ff8000')
               .fontWeight(FontWeight.Bold)
           }
@@ -262,13 +281,29 @@ struct MeiTuanEntryPage {
 
 // 底部 总金额-结算组件
 @Component struct MTBottom {
+  @Link showCart: boolean
+  @Consume cartList: FoodItem[]
+  getAllCount () {
+    return this.cartList.reduce((preValue, item) => preValue + item.count, 0).toString()
+  }
+  getAllPrice () {
+    var total: number = 0
+    this.cartList.forEach(element => {
+      if (element.count > 0) {
+        total += element.count * element.price
+      }
+    });
+    Log.info("DemoDebug", total.toString())
+    return total.toFixed(2)
+    // return this.cartList.reduce((preValue, item) => preValue + (item.count * item.price), 0).toFixed(2)
+  }
   build() {
     // 底部悬浮层
     Row() {
       Row() {
         // 小黄人-角标
         Badge({
-          value: '0',
+          value: this.getAllCount(),
           position: BadgePosition.Right,
           style: { badgeSize: 18 }
         }) {
@@ -280,6 +315,9 @@ struct MeiTuanEntryPage {
         .width(50)
         .height(50)
         .margin({ left: 25, right: 10 })
+        .onClick(() => {
+          this.showCart = !this.showCart
+        })
 
         // 金额-预估金额 Colum
         Column() {
@@ -287,7 +325,7 @@ struct MeiTuanEntryPage {
             Span('¥')
               .fontColor('#fff')
               .fontSize(12)
-            Span('0.00')
+            Span(this.getAllPrice())
               .fontColor('#fff')
               .fontSize(24)
           }
@@ -318,5 +356,52 @@ struct MeiTuanEntryPage {
     .width('100%')
     .padding({ left: 20, right: 20, bottom: 20 })
 
+  }
+}
+
+
+@Component struct MTAddCut {
+  @Consume cartList: FoodItem[] // 当前购物车
+  item: Partial<FoodItem> = {} // 当前菜的对象
+  getContent() {
+    return this.cartList.find(item => item.id === this.item.id)?.count || 0
+  }
+
+  build() {
+    Row({ space: 8 }) {
+      // 减
+      Row() {
+        Image('/pages/MeiTuan/minus.png')
+          .width(10)
+          .aspectRatio(1)
+
+      }.width(16)
+      .aspectRatio(1)
+      .justifyContent(FlexAlign.Center)
+      .backgroundColor("#fff")
+      .borderRadius(4)
+      .border({ width: 0.5 , color: '#f8c74e'})
+      .onClick(() => {
+        addCutCart("cut", this.item as FoodItem)
+      })
+      .visibility(this.getContent() ? Visibility.Visible:  Visibility.Hidden)
+
+      // 内容
+      Text(this.getContent().toString()).fontSize(14)
+      // 加
+      Row() {
+        Image('/pages/MeiTuan/plus.png')
+          .width(10)
+          .aspectRatio(1)
+
+      }.width(16)
+      .aspectRatio(1)
+      .justifyContent(FlexAlign.Center)
+      .backgroundColor('#f8c74e')
+      .borderRadius(4)
+      .onClick(() => {
+        addCutCart("add", this.item as FoodItem)
+      })
+    }
   }
 }
